@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <title>ChatJS - FrontEnd Magazine - DevMedia</title>
+     <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+<body>
+     <div id="historico_mensagens"></div>
+     <form id=’chat’>
+         <input type='text' id='texto_mensagem' name='texto_mensagem' />
+         <input id='submit' type='submit' value='Enviar mensagem!' />
+     </form>
+
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+     <script>
+          const socket = io("http://localhost:3000");
+          const button = document.getElementById('submit');
+          const text = document.getElementById('texto_mensagem');
+          const historico = document.getElementById('historico_mensagens');
+
+          console.log(text);
+
+          function event(evt) {
+               evt.preventDefault(),
+               socket.emit("message", text.value);
+               text.value = "";
+          }
+
+          button.addEventListener(
+               'click',
+               event,
+               false
+           );
+
+           socket.on("message", (data) => {
+                historico.append(data, document.createElement("p"));
+                console.log(data);
+           });
+     </script>
+</body>
+</html>
