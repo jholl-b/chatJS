@@ -5,32 +5,54 @@
      <link rel="stylesheet" type="text/css" href="/css/style.css" />
 </head>
 <body>
-     <div id="historico_mensagens"></div>
-     <form id=’chat’>
-         <input type='text' id='texto_mensagem' name='texto_mensagem' />
-         <input id='submit' type='submit' value='Enviar mensagem!' />
-     </form>
+     <div id='acesso_usuario'>
+          <form id='login'>
+              <input type='text' placeholder='Insira seu apelido' name='apelido' id='apelido' />
+              <input id='entrar' type='submit' value='Entrar' />
+          </form>
+     </div>
+     <div id='sala_chat'>
+          <div id="historico_mensagens"></div>
+          <form id='chat'>
+              <input type='text' id='texto_mensagem' name='texto_mensagem' />
+              <input id='enviar' type='submit' value='Enviar mensagem!' />
+          </form>
+     </div>
 
      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
      <script>
           const socket = io("http://localhost:3000");
-          const button = document.getElementById('submit');
+          const entrar = document.getElementById('entrar');
+          const apelido = document.getElementById('apelido');
+          const enviar = document.getElementById('enviar');
           const text = document.getElementById('texto_mensagem');
           const historico = document.getElementById('historico_mensagens');
 
           console.log(text);
 
-          function event(evt) {
-               evt.preventDefault(),
-               socket.emit("message", text.value);
+          function eventEntrar(evt) {
+               evt.preventDefault();
+               socket.emit("entrar", apelido.value, (valido) => {
+                    if (valido) {
+                         console.log('entrei 1');
+                         document.getElementById('acesso_usuario').style.display = 'none';
+                         document.getElementById('sala_chat').style.display = 'block';
+                    } else {
+                         console.log('entrei 2');
+                         apelido.value = "";
+                         alert('Nome já utilizado nesta sala.');
+                    }
+               });
+          }
+
+          function eventMessage(evt) {
+               evt.preventDefault();
+               socket.emit("message", {msg: text.value, usu: apelido.value});
                text.value = "";
           }
 
-          button.addEventListener(
-               'click',
-               event,
-               false
-           );
+          entrar.addEventListener('click', eventEntrar, false);
+          enviar.addEventListener('click', eventMessage, false);
 
            socket.on("message", (data) => {
                 historico.append(data, document.createElement("p"));
